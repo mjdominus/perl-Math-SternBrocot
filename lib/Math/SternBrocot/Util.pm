@@ -20,20 +20,22 @@ sub best_approx {
   return $sb->pull();
 }
 
+# Tabulate approximations for fractions n/d, (n+1)/d, ..., (d-1)/d
 sub tabulate {
-  my ($max_num, $denom) = @_;
-  $denom = $max_num unless defined $denom;
+  my ($n, $d) = @_;
   my $sb = Math::SternBrocot->new();
-  $sb->set_bounds([0,1], [$max_num,$denom]);
-  $sb->set_prune_depth($denom);
+  $sb->set_bounds([$n,$d], [1,1]);
+  $sb->set_prune_depth($d);
   my @a;
-  my $N = $max_num;
-  while ($N > 0) {
+  my $slots_unfilled = $d - $n;
+  while ($slots_unfilled > 0) {
     my $f = $sb->pull();
-    my $slot = int($f->[0]/$f->[1] * $denom);
+    last unless defined $f;
+    my $slot = int($f->[0]/$f->[1] * $d) - $n;
     next if defined $a[$slot];
     $a[$slot] = $f; 
-    $N--;
+    $slots_unfilled;
+#    print STDERR ".";
   }
   return \@a;
 }

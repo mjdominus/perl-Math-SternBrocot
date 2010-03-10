@@ -1,10 +1,27 @@
+#!/usr/bin/perl
 
 use Math::SternBrocot::Util;
+use Getopt::Std;
+my %opt;
+getopts('d', \%opt) or die;
+my $den = $opt{d} ? 10 : 365;
 
 my $age_days = shift;
 die unless defined $age_days;
-#my $ba = best_approx([$age_days, 365], [$age_days+1, 365]);
-my $ba = best_approx([$age_days, 365], [$age_days+1, 365]);
+my $ba = best_approx([$age_days, $den], [$age_days+1, $den]);
 
-print "Sometime today you will be 41 and $ba->[0]/$ba->[1] years old.\n";
+print "Sometime today you will be 41 and $ba->[0]/$ba->[1] years old.\n\n";
 
+my $tab = tabulate($age_days, $den);
+shift @$tab;
+my %next_date_for_denom;
+for my $i (0 .. $#$tab) {
+  my ($n, $d) = @{$tab->[$i]};
+  next if $next_date_for_denom{$d};
+  $next_date_for_denom{$d} = [$i+1, $n, $d];
+}
+for my $denom (sort { $a <=> $b } keys %next_date_for_denom) {
+  my ($when, $n, $d) = @{$next_date_for_denom{$denom}};
+  my $days = $when == 1 ? "day" : "days";
+  print "In $when $days you will be 41 $n/$d years old.\n";
+}
