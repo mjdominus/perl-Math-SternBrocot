@@ -1,0 +1,10 @@
+
+use Math::SternBrocot::Util;
+
+my $age_days = shift;
+die unless defined $age_days;
+#my $ba = best_approx([$age_days, 365], [$age_days+1, 365]);
+my $ba = best_approx([$age_days, 365], [$age_days+1, 365]);
+
+print "Sometime today you will be 41 and $ba->[0]/$ba->[1] years old.\n";
+
