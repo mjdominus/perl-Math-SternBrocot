@@ -2,33 +2,58 @@ package Math::SternBrocot;
 
 use 5.010000;
 use strict;
-use warnings;
 
-require Exporter;
-
-our @ISA = qw(Exporter);
-
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
-# This allows declaration	use Math::SternBrocot ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
 our %EXPORT_TAGS = ( 'all' => [ qw(
 	
-) ] );
+				 ) ] );
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
 	
-);
+	       );
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
-# Preloaded methods go here.
+sub new {
+  my $class = shift;
+  my ($a, $b, $c, $d) = @_;
+  ($a, $b) = (0, 1) unless defined $b;
+  ($c, $d) = (1, 0) unless defined $d;
+  my $self = { Q => [ [ [$a, $b], [$c, $d] ] ] } ;
+  bless $self => $class;
+}
+
+sub _queue { $_[0]{Q} }
+
+# Pull next fraction in [ $n, $d ] format
+sub pull {
+  my $self = shift;
+  my $Q = $self->_queue;
+  my $head = shift @$Q;
+  my ($hl, $hh) = @$head;
+  my $m = mediant($hl, $hh);
+  $self->push([ $hl, $m ], [ $m, $hh ]);
+  return $m;
+}
+
+sub push {
+  my $self = shift;
+  push @{$self->_queue()}, @_;
+}
+
+# Pull next fraction in floating-point format
+sub pull_float {
+  my $self = shift;
+  my $next = $self->pull;
+  return $next->[0] / $next->[1];
+}
+
+sub mediant {
+  my ($a, $b) = @_;
+  return [$a->[0] + $b->[0], $a->[1] + $b->[1]];
+}
 
 1;
 __END__
@@ -41,44 +66,26 @@ Math::SternBrocot - Perl extension for blah blah blah
 =head1 SYNOPSIS
 
   use Math::SternBrocot;
-  blah blah blah
+  my $sb = Math::SternBrocot->new();
+  
 
 =head1 DESCRIPTION
-
-Stub documentation for Math::SternBrocot, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
-
-Blah blah blah.
 
 =head2 EXPORT
 
 None by default.
 
-
-
 =head1 SEE ALSO
-
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
-
-If you have a mailing list set up for your module, mention it here.
-
-If you have a web site set up for your module, mention it here.
 
 =head1 AUTHOR
 
-Mark Dominus, E<lt>mjd@E<gt>
+Mark Dominus, E<lt>mjd@plover.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2010 by Mark Dominus
+Copyright relinquished 2010 by Mark Dominus
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.10.0 or,
-at your option, any later version of Perl 5 you may have available.
+This software is in the public domain
 
 
 =cut
