@@ -30,15 +30,22 @@ sub set_filter {
 
 sub set_bounds {
   my ($self, $lo, $hi) = @_;
-  $self->
-    set_filter(sub {
-		 my $n = shift;
-		 between($lo, $n, $hi);
-	       });
+  $self->{LO} = $lo;
+  $self->{HI} = $hi;
+  $self->set_filter( sub { $self->in_bounds($_[0]) } );
+}
+
+sub lo { $_[0]{LO} }
+sub hi { $_[0]{HI} }
+
+sub in_bounds {
+  my ($self, $f) = @_;
+  return between($self->lo, $f, $self->hi);
 }
 
 sub _queue { $_[0]{Q} }
 sub _filter { $_[0]{F} }
+sub _bounded { exists $_[0]{LO} }
 
 # Pull next fraction in [ $n, $d ] format
 sub pull {
@@ -50,7 +57,12 @@ sub pull {
     my $head = shift @$Q;
     my ($hl, $hh) = @$head;
     $m = mediant($hl, $hh);
-    $self->push([ $hl, $m ], [ $m, $hh ]);
+    if ($self->_bounded) {
+      $self->push([$m, $hh]) if rlt($m, $self->hi);
+      $self->push([$hl, $m]) if rle($self->lo, $m);
+    } else {
+      $self->push([ $hl, $m ], [ $m, $hh ]);
+    }
   } while $F && ! $F->($m);
   return $m;
 }
@@ -72,11 +84,22 @@ sub mediant {
   return [$a->[0] + $b->[0], $a->[1] + $b->[1]];
 }
 
+# True if $a <= $b < $c
 sub between {
   my ($a, $b, $c) = @_;
+  return rle($a, $b) && rlt($b, $c);
+}
+
+# True if $a < $b
+sub rlt {
+  my ($a, $b) = @_;
+  return $a->[0] * $b->[1] <  $a->[1] * $b->[0];
+}
+
+# True if $a <= $b
+sub rle {
+  my ($a, $b) = @_;
   $a->[0] * $b->[1] <= $a->[1] * $b->[0]
-    &&
-  $b->[0] * $c->[1] <  $b->[1] * $c->[0];
 }
 
 1;
