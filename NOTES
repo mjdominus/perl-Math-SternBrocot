@@ -1,0 +1,8 @@
+Generating an S/B tree for bounds [1/365, 2/365] takes a long time, I
+think because generation is exponential in the denominator.  Generation
+should prune out non-interesting intervals that cannot possibly contain
+values that satisy the filter.
+
+For arbitrary filters no pruning is possible, but for range filters
+one can discard the interval [a,b] from the push call if both filter(a)
+and filter(b) fail.
