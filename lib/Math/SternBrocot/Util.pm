@@ -25,6 +25,7 @@ sub tabulate {
   $denom = $max_num unless defined $denom;
   my $sb = Math::SternBrocot->new();
   $sb->set_bounds([0,1], [$max_num,$denom]);
+  $sb->set_prune_depth($denom);
   my @a;
   my $N = $max_num;
   while ($N > 0) {

@@ -28,6 +28,16 @@ sub set_filter {
   $self->{F} = $f;
 }
 
+sub set_prune_depth {
+  my ($self, $d) = @_;
+  $self->{D} = $d;
+}
+
+sub too_deep {
+  my ($self, $f) = @_;
+  return $f->[1] > $self->{D};
+}
+
 sub set_bounds {
   my ($self, $lo, $hi) = @_;
   $self->{LO} = $lo;
@@ -57,6 +67,7 @@ sub pull {
     my $head = shift @$Q;
     my ($hl, $hh) = @$head;
     $m = mediant($hl, $hh);
+#    next if $self->too_deep($m);
     if ($self->_bounded) {
       $self->push([$m, $hh]) if rlt($m, $self->hi);
       $self->push([$hl, $m]) if rle($self->lo, $m);
