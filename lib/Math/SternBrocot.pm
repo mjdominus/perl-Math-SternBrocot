@@ -4,17 +4,14 @@ use 5.010000;
 use strict;
 
 our %EXPORT_TAGS = ( 'all' => [ qw(
-	
+				    mediant between
 				 ) ] );
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our @EXPORT = qw(
-	
-	       );
+our @EXPORT = qw();
 
-our $VERSION = '0.02';
-
+our $VERSION = '0.03';
 
 sub new {
   my $class = shift;
@@ -25,16 +22,35 @@ sub new {
   bless $self => $class;
 }
 
+sub set_filter {
+  my ($self, $f) = @_;
+  $self->{F} = $f;
+}
+
+sub set_bounds {
+  my ($self, $lo, $hi) = @_;
+  $self->
+    set_filter(sub {
+		 my $n = shift;
+		 is_between($lo, $n, $hi);
+	       });
+}
+
 sub _queue { $_[0]{Q} }
+sub _filter { $_[0]{F} }
 
 # Pull next fraction in [ $n, $d ] format
 sub pull {
   my $self = shift;
   my $Q = $self->_queue;
-  my $head = shift @$Q;
-  my ($hl, $hh) = @$head;
-  my $m = mediant($hl, $hh);
-  $self->push([ $hl, $m ], [ $m, $hh ]);
+  my $F = $self->_filter;
+  my $m;
+  do {
+    my $head = shift @$Q;
+    my ($hl, $hh) = @$head;
+    $m = mediant($hl, $hh);
+    $self->push([ $hl, $m ], [ $m, $hh ]);
+  } while $F && ! $F->($m);
   return $m;
 }
 
@@ -53,6 +69,13 @@ sub pull_float {
 sub mediant {
   my ($a, $b) = @_;
   return [$a->[0] + $b->[0], $a->[1] + $b->[1]];
+}
+
+sub is_between {
+  my ($a, $b, $c) = @_;
+  $a->[0] * $b->[1] <= $a->[1] * $b->[0]
+    &&
+  $b->[0] * $c->[1] <  $b->[1] * $c->[0];
 }
 
 1;
