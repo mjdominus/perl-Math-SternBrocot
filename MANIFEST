@@ -1,0 +1,6 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/Math-SternBrocot.t
+lib/Math/SternBrocot.pm

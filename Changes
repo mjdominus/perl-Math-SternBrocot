@@ -1,0 +1,6 @@
+Revision history for Perl extension Math::SternBrocot.
+
+0.01  Wed Mar 10 08:23:28 2010
+	- original version; created by h2xs 1.23 with options
+		-A -X -n Math::SternBrocot
+
