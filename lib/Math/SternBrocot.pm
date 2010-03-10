@@ -55,6 +55,7 @@ sub pull {
   my $m;
   do {
     my $head = shift @$Q;
+    return unless defined $head;
     my ($hl, $hh) = @$head;
     $m = mediant($hl, $hh);
     if ($self->_bounded) {
