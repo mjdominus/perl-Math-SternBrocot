@@ -35,7 +35,7 @@ sub set_prune_depth {
 
 sub too_deep {
   my ($self, $f) = @_;
-  return $f->[1] > $self->{D};
+  return defined($self->{D}) && $f->[1] > $self->{D};
 }
 
 sub set_bounds {
@@ -63,19 +63,20 @@ sub pull {
   my $Q = $self->_queue;
   my $F = $self->_filter;
   my $m;
-  do {
+  while (@$Q) {
     my $head = shift @$Q;
     my ($hl, $hh) = @$head;
     $m = mediant($hl, $hh);
-#    next if $self->too_deep($m);
+    next if $self->too_deep($m);
     if ($self->_bounded) {
       $self->push([$m, $hh]) if rlt($m, $self->hi);
       $self->push([$hl, $m]) if rle($self->lo, $m);
     } else {
       $self->push([ $hl, $m ], [ $m, $hh ]);
     }
-  } while $F && ! $F->($m);
-  return $m;
+    return $m if !$F || $F->($m);
+  } 
+  return;
 }
 
 sub push {
