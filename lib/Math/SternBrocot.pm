@@ -2,6 +2,7 @@ package Math::SternBrocot;
 
 use 5.010000;
 use strict;
+use base 'Exporter';
 
 our %EXPORT_TAGS = ( 'all' => [ qw(
 				    mediant between
@@ -32,7 +33,7 @@ sub set_bounds {
   $self->
     set_filter(sub {
 		 my $n = shift;
-		 is_between($lo, $n, $hi);
+		 between($lo, $n, $hi);
 	       });
 }
 
@@ -71,7 +72,7 @@ sub mediant {
   return [$a->[0] + $b->[0], $a->[1] + $b->[1]];
 }
 
-sub is_between {
+sub between {
   my ($a, $b, $c) = @_;
   $a->[0] * $b->[1] <= $a->[1] * $b->[0]
     &&

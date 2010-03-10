@@ -4,14 +4,17 @@
 #########################
 
 my @x;
+my $Y;
 
 BEGIN { @x = (                1,
                      1/2,             2/1,
                 1/3,      2/3,   3/2,        3/1,
             1/4,  2/5,  3/5,3/4,4/3,5/3, 5/2,   4/1,
-	     ) }
+	     );
+	$Y = 0;
+      }
 
-use Test::More tests => 2 + @x;
+use Test::More tests => 2 + @x + $Y;
 BEGIN { use_ok('Math::SternBrocot') };
 
 #########################
@@ -28,4 +31,12 @@ BEGIN { use_ok('Math::SternBrocot') };
   }
 }
 
+
+
+{
+  my $sb = Math::SternBrocot->new();
+  for (1 .. $Y) {
+    
+  }
+}
 
