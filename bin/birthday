@@ -2,9 +2,16 @@
 
 use Math::SternBrocot::Util;
 use Getopt::Std;
+use Date::Calc;
+
 my %opt;
 getopts('d', \%opt) or die;
-my $den = $opt{d} ? 10 : 365;
+my $date = do {
+    my $bdate = shift or die;
+    my ($by, $bm, $bd) = unpack "A4 A2 A2", $bdate;
+    my ($cy, $cm, $cd) = (localtime())[5,4,3];
+    my $is_leap
+}
 
 my $age_days = shift;
 die unless defined $age_days;
